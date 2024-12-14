@@ -1,6 +1,5 @@
 package app.blogging.blogging_application.dto;
 
-import app.blogging.blogging_application.entity.User;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

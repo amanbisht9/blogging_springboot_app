@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import app.blogging.blogging_application.dto.UserDto;
 import app.blogging.blogging_application.dto.UserDtoToUser;
 import app.blogging.blogging_application.entity.User;
+import app.blogging.blogging_application.exceptions.FetchException;
 import app.blogging.blogging_application.repositories.UserRepository;
 import app.blogging.blogging_application.services.UserService;
 
@@ -33,38 +34,39 @@ public class IUserService implements UserService{
     }
 
     @Override
-    public User updateUser(UserDto userDto, Integer userId) throws Exception {
+    public User updateUser(UserDto userDto, Integer userId) {
         // Update the user
-        try {
-            User user = this.userRepository.findById(userId).orElseThrow();
+        
+        User user = this.userRepository.findById(userId).orElse(null);
 
-            user.setName(userDto.getName());
-            user.setEmail(userDto.getEmail());
-            user.setPassword(userDto.getPassword());
-            user.setAbout(userDto.getAbout());
-
-            User savedUser = this.userRepository.save(user);
-
-            return savedUser;
-
-        } catch (Exception e) {
-            // Throw exception
-            throw new Exception(e.getMessage());
+        if(user == null){
+            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
         }
+
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        user.setAbout(userDto.getAbout());
+
+        User savedUser = this.userRepository.save(user);
+
+        return savedUser;
+
     }
+    
 
     @Override
-    public User getUserById(Integer userId) throws Exception{
+    public User getUserById(Integer userId){
         // Get the user by id
-        try {
-            User user = this.userRepository.findById(userId).orElseThrow();
+     
+        User user = this.userRepository.findById(userId).orElse(null);
 
-            return user;
-
-        } catch (Exception e) {
-            // Throw exception
-            throw new Exception(e.getMessage());
+        if(user == null){
+            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
         }
+
+        return user;
+
     }
 
     @Override
@@ -81,17 +83,15 @@ public class IUserService implements UserService{
     }
 
     @Override
-    public void deleteUserById(Integer userId) throws Exception{
+    public void deleteUserById(Integer userId){
         // Delete user by id
-        try {
-            this.userRepository.findById(userId).orElseThrow();
-            this.userRepository.deleteById(userId);
-
-        } catch (Exception e) {
-            // Throw exception
-            throw new Exception(e.getMessage());
+       
+        User user = this.userRepository.findById(userId).orElse(null);
+        if(user == null){
+            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
         }
-        
+        this.userRepository.deleteById(userId);
+
     }
     
 }
