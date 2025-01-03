@@ -4,8 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import app.blogging.blogging_application.dto.UserDto;
-import app.blogging.blogging_application.entity.User;
 import app.blogging.blogging_application.services.UserService;
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,44 +31,42 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/create")
-    public ResponseEntity<User> createUserC(@RequestBody UserDto user) throws Exception {
+    public ResponseEntity<UserDto> createUserC(@Valid @RequestBody UserDto user){
         //create user
-        User createdUser = this.userService.createUser(user);
+        UserDto createdUser = this.userService.createUser(user);
 
-        return new ResponseEntity<User>(createdUser, HttpStatus.CREATED);
+        return new ResponseEntity<UserDto>(createdUser, HttpStatus.CREATED);
         
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getMethodName(@PathVariable("id") Integer id){
+    public ResponseEntity<UserDto> getMethodName(@PathVariable("id") Integer id){
         //retrieved user by id
-        User user = this.userService.getUserById(id);
+        UserDto user = this.userService.getUserById(id);
 
-        return new ResponseEntity<User>(user, HttpStatus.FOUND);
+        return new ResponseEntity<UserDto>(user, HttpStatus.FOUND);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllMethodName() throws Exception{
+    public ResponseEntity<List<UserDto>> getAllMethodName() throws Exception{
         //retrieved user by id
-        List<User> users = this.userService.getAllUser();
+        List<UserDto> users = this.userService.getAllUser();
 
-        return new ResponseEntity<List<User>>(users, HttpStatus.FOUND);
+        return new ResponseEntity<List<UserDto>>(users, HttpStatus.FOUND);
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> putMethodName(@PathVariable("id") Integer id, @RequestBody UserDto userDto){
+    public ResponseEntity<UserDto> putMethodName(@PathVariable("id") Integer id, @Valid @RequestBody UserDto userDto){
         //update user by id
-        User user = this.userService.updateUser(userDto, id);
+        UserDto user = this.userService.updateUser(userDto, id);
         
-        return new ResponseEntity<User>(user, HttpStatus.OK);
+        return new ResponseEntity<UserDto>(user, HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Boolean> deleteMethodName(@PathVariable("id") Integer id){
+    public void deleteMethodName(@PathVariable("id") Integer id){
         //update user by id
-        this.userService.deleteUserById(id);;
-        
-        return new ResponseEntity<Boolean>(true, HttpStatus.OK);
+        this.userService.deleteUserById(id);
     }
     
     

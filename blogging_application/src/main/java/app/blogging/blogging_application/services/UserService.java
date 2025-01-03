@@ -4,13 +4,12 @@ import java.util.List;
 
 
 import app.blogging.blogging_application.dto.UserDto;
-import app.blogging.blogging_application.entity.User;
 
 public interface UserService{
 
-    User createUser(UserDto userDto) throws Exception;
-    User updateUser(UserDto userDto, Integer userId);
-    User getUserById(Integer userId);
-    List<User> getAllUser()  throws Exception;
+    UserDto createUser(UserDto userDto);
+    UserDto updateUser(UserDto userDto, Integer userId);
+    UserDto getUserById(Integer userId);
+    List<UserDto> getAllUser()  throws Exception;
     void deleteUserById(Integer userId);
 }

@@ -1,12 +1,15 @@
 package app.blogging.blogging_application.serviceImpl;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import app.blogging.blogging_application.config.ModelMapperConfig;
 import app.blogging.blogging_application.dto.UserDto;
-import app.blogging.blogging_application.dto.UserDtoToUser;
 import app.blogging.blogging_application.entity.User;
+import app.blogging.blogging_application.exceptions.CreationException;
 import app.blogging.blogging_application.exceptions.FetchException;
 import app.blogging.blogging_application.repositories.UserRepository;
 import app.blogging.blogging_application.services.UserService;
@@ -17,31 +20,30 @@ public class IUserService implements UserService{
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ModelMapperConfig modelMapperConfig;
+
 
     @Override
-    public User createUser(UserDto userDto) throws Exception{
+    public UserDto createUser(UserDto userDto){
         // Add or create user in database
         try {
-            UserDtoToUser userDtoToUser = new UserDtoToUser();
-            User user = userDtoToUser.userDtoToUser(userDto);
+
+            User user = this.modelMapperConfig.modelMapper().map(userDto, User.class);
             User savedUser = this.userRepository.save(user);
-            return savedUser;
+            return this.modelMapperConfig.modelMapper().map(savedUser, UserDto.class);
 
         } catch (Exception e) {
             // Throw exception
-            throw new Exception(e.getMessage());
+            throw new CreationException("Error while creating user", e);
         }
     }
 
     @Override
-    public User updateUser(UserDto userDto, Integer userId) {
+    public UserDto updateUser(UserDto userDto, Integer userId) {
         // Update the user
         
-        User user = this.userRepository.findById(userId).orElse(null);
-
-        if(user == null){
-            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
-        }
+        User user = this.userRepository.findById(userId).orElseThrow(() -> new FetchException("User id: "+String.valueOf(userId)+" not found", new Throwable()));
 
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
@@ -50,46 +52,43 @@ public class IUserService implements UserService{
 
         User savedUser = this.userRepository.save(user);
 
-        return savedUser;
+        return this.modelMapperConfig.modelMapper().map(savedUser, UserDto.class);
 
     }
     
 
     @Override
-    public User getUserById(Integer userId){
+    public UserDto getUserById(Integer userId){
         // Get the user by id
      
-        User user = this.userRepository.findById(userId).orElse(null);
+        User user = this.userRepository.findById(userId).orElseThrow(() -> new FetchException("User id: "+String.valueOf(userId)+" not found", new Throwable().getCause()));
+        // if(user == null){
+        //     throw new FetchException("User id: "+String.valueOf(userId)+" not found");
+        // }
 
-        if(user == null){
-            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
-        }
-
-        return user;
+        return this.modelMapperConfig.modelMapper().map(user, UserDto.class);
 
     }
 
     @Override
-    public List<User> getAllUser()  throws Exception{
+    public List<UserDto> getAllUser()  throws Exception{
         // Get the user
         try {
             List<User> user = this.userRepository.findAll();
-            return user;
+            return user.stream()
+                       .map(u -> this.modelMapperConfig.modelMapper().map(u, UserDto.class))
+                       .collect(Collectors.toList());
 
         } catch (Exception e) {
             // Throw exception
-            throw new Exception(e.getMessage());
+            throw new FetchException("Cannot get all users.", e);
         }
     }
 
     @Override
     public void deleteUserById(Integer userId){
         // Delete user by id
-       
-        User user = this.userRepository.findById(userId).orElse(null);
-        if(user == null){
-            throw new FetchException("User id: "+String.valueOf(userId)+" not found");
-        }
+        this.userRepository.findById(userId).orElseThrow(() -> new FetchException("User id: "+String.valueOf(userId)+" not found", new Throwable().getCause()));
         this.userRepository.deleteById(userId);
 
     }

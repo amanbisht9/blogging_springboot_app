@@ -3,6 +3,7 @@ package app.blogging.blogging_application.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -17,24 +18,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "users")
+@Table(name="category")
 @NoArgsConstructor
 @Data
-public class User {
-
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(nullable = false, length = 50)
-    private String name;
-    @Column(nullable = false, length = 60)
-    private String email;
-    @Column(nullable = false, length = 60)
-    private String password;
-    @Column(nullable = false, length = 200)
-    private String about;
+    private int categoryId;
+    @Column(nullable = false)
+    private String categoryTitle;
+    @Column(nullable = false)
+    private String categoryDescription;
 
-    @OneToMany(mappedBy = "postUser", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "postCategory", cascade = CascadeType.ALL)
     private List<Posts> posts = new ArrayList<>();
 
 }
